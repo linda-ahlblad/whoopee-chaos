@@ -1,3 +1,5 @@
+/* src/styles/global.css */
+
 :root {
   --primary-color: #8e2de2;
   --secondary-color: #4a6da7;
@@ -11,6 +13,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  -webkit-tap-highlight-color: transparent; /* Removes tap highlight on mobile */
 }
 
 body {
@@ -18,12 +21,14 @@ body {
   background-color: var(--background-color);
   color: var(--text-color);
   overflow: hidden;
+  touch-action: manipulation; /* Improves touch responsiveness */
 }
 
 .game-container {
   position: relative;
   width: 100vw;
   height: 100vh;
+  height: calc(var(--vh, 1vh) * 100); /* Dynamic height calculation for mobile */
 }
 
 .game-canvas {
@@ -33,6 +38,23 @@ body {
   width: 100%;
   height: 100%;
   z-index: 1;
+  touch-action: none; /* Prevents browser handling of touch gestures */
+}
+
+/* Loading screen */
+.loading {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--background-color);
+  color: var(--primary-color);
+  font-size: 1.5rem;
+  z-index: 9999;
 }
 
 /* UI Elements */
@@ -66,6 +88,35 @@ body {
   font-size: 1.2rem;
 }
 
+.round-timer {
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.round-timer progress {
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.round-timer progress::-webkit-progress-bar {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}
+
+.round-timer progress::-webkit-progress-value {
+  background-color: var(--accent-color);
+  border-radius: 4px;
+}
+
+.round-timer span {
+  font-size: 0.9rem;
+  margin-top: 2px;
+}
+
 /* Intro Screen */
 .intro-screen {
   position: absolute;
@@ -94,6 +145,46 @@ body {
   margin-bottom: 30px;
 }
 
+.mobile-instructions {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.mobile-instructions p {
+  font-size: 1rem;
+  margin-bottom: 10px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Game Over Screen */
+.game-over {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  border-radius: 20px;
+  padding: 40px;
+  text-align: center;
+  max-width: 600px;
+  pointer-events: auto;
+}
+
+.game-over h1 {
+  font-size: 3rem;
+  margin-bottom: 20px;
+  background: linear-gradient(45deg, var(--accent-color), var(--primary-color));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.game-over p {
+  font-size: 1.5rem;
+  margin-bottom: 30px;
+}
+
 /* Divine Message */
 .divine-message {
   position: absolute;
@@ -105,12 +196,48 @@ body {
   padding: 20px;
   max-width: 80%;
   text-align: center;
+  animation: fadeInOut 5s forwards;
 }
 
 .divine-message p {
   font-size: 1.2rem;
   font-style: italic;
   color: var(--text-color);
+}
+
+/* Settings Button & Panel */
+.settings-button {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.7);
+  font-size: 1.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
+  pointer-events: auto;
+}
+
+.settings-panel {
+  position: absolute;
+  bottom: 80px;
+  right: 20px;
+  background-color: rgba(0, 0, 0, 0.8);
+  border-radius: 10px;
+  padding: 20px;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.settings-panel h3 {
+  margin-bottom: 10px;
+  text-align: center;
 }
 
 /* Buttons */
@@ -131,14 +258,26 @@ button:hover {
   box-shadow: 0 0 15px rgba(142, 45, 226, 0.6);
 }
 
+button:active {
+  transform: scale(0.98);
+}
+
+/* Animations */
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+  15% { opacity: 1; transform: translateX(-50%) translateY(0); }
+  85% { opacity: 1; transform: translateX(-50%) translateY(0); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+}
+
 /* Responsive Adjustments */
 @media (max-width: 768px) {
-  .intro-screen {
+  .intro-screen, .game-over {
     padding: 30px;
     max-width: 90%;
   }
   
-  .intro-screen h1 {
+  .intro-screen h1, .game-over h1 {
     font-size: 2.5rem;
   }
   
@@ -150,5 +289,32 @@ button:hover {
   
   .score-display h2 {
     font-size: 1.2rem;
+  }
+  
+  .score-display h3 {
+    font-size: 1rem;
+  }
+  
+  .divine-message {
+    bottom: 80px;
+    max-width: 90%;
+    padding: 15px;
+  }
+  
+  .divine-message p {
+    font-size: 1rem;
+  }
+  
+  button {
+    padding: 12px 24px;
+    font-size: 1rem;
+  }
+}
+
+/* Fix for iOS Safari 100vh issue */
+@media screen and (max-width: 812px) and (orientation: landscape) {
+  .intro-screen, .game-over {
+    max-height: 80vh;
+    overflow-y: auto;
   }
 }
