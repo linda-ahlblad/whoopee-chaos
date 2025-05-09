@@ -1,0 +1,11 @@
+{
+  "files": {
+    "main.css": "/whoopee-chaos/static/css/main.aabb65ab.css",
+    "main.js": "/whoopee-chaos/static/js/main.bd4b04be.js",
+    "index.html": "/whoopee-chaos/index.html"
+  },
+  "entrypoints": [
+    "static/css/main.aabb65ab.css",
+    "static/js/main.bd4b04be.js"
+  ]
+}
