@@ -13,7 +13,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  -webkit-tap-highlight-color: transparent; /* Removes tap highlight on mobile */
+  -webkit-tap-highlight-color: transparent;
 }
 
 body {
@@ -21,114 +21,16 @@ body {
   background-color: var(--background-color);
   color: var(--text-color);
   overflow: hidden;
-  touch-action: manipulation; /* Improves touch responsiveness */
+  touch-action: manipulation;
 }
 
 .game-container {
   position: relative;
   width: 100vw;
   height: 100vh;
-  height: calc(var(--vh, 1vh) * 100); /* Dynamic height calculation for mobile */
-}
-
-.game-canvas {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 1;
-  touch-action: none; /* Prevents browser handling of touch gestures */
-}
-
-/* Loading screen */
-.loading {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background-color: var(--background-color);
-  color: var(--primary-color);
-  font-size: 1.5rem;
-  z-index: 9999;
-}
-
-.loading h1 {
-  font-size: 3rem;
-  margin-bottom: 20px;
-  background: linear-gradient(45deg, var(--primary-color), var(--highlight-color));
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.loading p {
-  margin-top: 20px;
-  color: var(--text-color);
-}
-
-.loading-spinner {
-  width: 50px;
-  height: 50px;
-  border: 5px solid rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
-  border-top-color: var(--primary-color);
-  animation: spin 1s ease-in-out infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-
-/* Error screen */
-.error-screen {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background-color: var(--background-color);
-  color: var(--accent-color);
-  z-index: 9999;
-  padding: 20px;
-  text-align: center;
-}
-
-.error-screen h1 {
-  font-size: 3rem;
-  margin-bottom: 20px;
-  background: linear-gradient(45deg, var(--accent-color), var(--primary-color));
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.error-screen p {
-  margin-bottom: 30px;
-  max-width: 600px;
-  font-size: 1.2rem;
 }
 
 /* UI Elements */
-.game-ui {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 2;
-  pointer-events: none;
-}
-
 .score-display {
   position: absolute;
   top: 20px;
@@ -156,21 +58,18 @@ body {
   align-items: flex-end;
 }
 
-.round-timer progress {
+.timer-bar {
   width: 100%;
   height: 8px;
-  border-radius: 4px;
-  background-color: rgba(255, 255, 255, 0.2);
-}
-
-.round-timer progress::-webkit-progress-bar {
   background-color: rgba(255, 255, 255, 0.2);
   border-radius: 4px;
+  overflow: hidden;
 }
 
-.round-timer progress::-webkit-progress-value {
+.timer-fill {
+  height: 100%;
   background-color: var(--accent-color);
-  border-radius: 4px;
+  transition: width 1s linear;
 }
 
 .round-timer span {
@@ -189,7 +88,6 @@ body {
   padding: 40px;
   text-align: center;
   max-width: 600px;
-  pointer-events: auto;
 }
 
 .intro-screen h1 {
@@ -206,16 +104,11 @@ body {
   margin-bottom: 30px;
 }
 
-.mobile-instructions {
-  margin-top: 20px;
-  padding-top: 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.mobile-instructions p {
-  font-size: 1rem;
-  margin-bottom: 10px;
-  color: rgba(255, 255, 255, 0.8);
+.simple-note {
+  font-size: 0.8rem !important;
+  opacity: 0.7;
+  margin-top: 20px !important;
+  margin-bottom: 0 !important;
 }
 
 /* Game Over Screen */
@@ -229,7 +122,6 @@ body {
   padding: 40px;
   text-align: center;
   max-width: 600px;
-  pointer-events: auto;
 }
 
 .game-over h1 {
@@ -266,41 +158,6 @@ body {
   color: var(--text-color);
 }
 
-/* Settings Button & Panel */
-.settings-button {
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background-color: rgba(0, 0, 0, 0.7);
-  font-size: 1.5rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 0;
-  pointer-events: auto;
-}
-
-.settings-panel {
-  position: absolute;
-  bottom: 80px;
-  right: 20px;
-  background-color: rgba(0, 0, 0, 0.8);
-  border-radius: 10px;
-  padding: 20px;
-  z-index: 10;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.settings-panel h3 {
-  margin-bottom: 10px;
-  text-align: center;
-}
-
 /* Buttons */
 button {
   background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
@@ -311,7 +168,6 @@ button {
   font-size: 1.2rem;
   cursor: pointer;
   transition: all 0.3s ease;
-  pointer-events: auto;
 }
 
 button:hover {
@@ -323,6 +179,64 @@ button:active {
   transform: scale(0.98);
 }
 
+/* Simple Version Game */
+.simple-game {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background-color: var(--background-color);
+  overflow: hidden;
+}
+
+.simple-cushions-container {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  max-width: 800px;
+  padding: 20px;
+}
+
+.simple-cushion {
+  width: 200px;
+  height: 100px;
+  background-color: var(--primary-color);
+  border-radius: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  user-select: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.simple-cushion:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+}
+
+.simple-cushion.activated {
+  transform: scale(0.9);
+  opacity: 0.7;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.simple-cushion span {
+  color: white;
+  font-weight: bold;
+  text-align: center;
+  font-size: 1rem;
+  padding: 10px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
 /* Animations */
 @keyframes fadeInOut {
   0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
@@ -331,62 +245,21 @@ button:active {
   100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
 }
 
-/* Simplified Game Fallback */
-.fallback-note {
-  margin-top: 20px;
-  font-size: 0.9rem;
-  opacity: 0.7;
-}
-
-.simplified-game {
-  position: relative;
+/* Loading screen */
+.loading {
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100%;
-  height: 100vh;
+  height: 100%;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   align-items: center;
-  justify-content: center;
   background-color: var(--background-color);
-}
-
-.cushion-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 20px;
-  margin-top: 40px;
-}
-
-.simplified-cushion {
-  width: 120px;
-  height: 60px;
-  background: linear-gradient(45deg, rgba(0,0,0,0.2), rgba(0,0,0,0.3));
-  border: none;
-  border-radius: 10px;
-  color: white;
-  font-weight: bold;
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.simplified-cushion:hover {
-  transform: scale(1.05);
-}
-
-.simplified-cushion:active {
-  transform: scale(0.95);
-}
-
-.cushion-0 {
-  background-color: #4a6da7;
-}
-
-.cushion-1 {
-  background-color: #8e2de2;
-}
-
-.cushion-2 {
-  background-color: #e94822;
+  color: var(--primary-color);
+  font-size: 1.5rem;
+  z-index: 9999;
 }
 
 /* Responsive Adjustments */
@@ -429,17 +302,12 @@ button:active {
     font-size: 1rem;
   }
   
-  .simplified-cushion {
-    width: 100px;
-    height: 50px;
-    font-size: 0.9rem;
+  .simple-cushion {
+    width: 150px;
+    height: 80px;
   }
-}
-
-/* Fix for iOS Safari 100vh issue */
-@media screen and (max-width: 812px) and (orientation: landscape) {
-  .intro-screen, .game-over {
-    max-height: 80vh;
-    overflow-y: auto;
+  
+  .simple-cushion span {
+    font-size: 0.9rem;
   }
 }
