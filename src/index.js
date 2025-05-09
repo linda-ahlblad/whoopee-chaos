@@ -1,9 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-// Change this import to use one of your simplified versions
-import SimpleApp from './SimpleApp';  // Try this one first
-// OR
-// import StandaloneApp from './StandaloneApp';
+import SimpleApp from './SimpleApp';
 import './styles/global.css';
 
 const rootElement = document.getElementById('root');
@@ -18,3 +15,5 @@ if (rootElement) {
 } else {
   console.error("Root element not found!");
 }
+
+console.log('Whoopee Chaos - The divine flatulence game (Simple Version)');
