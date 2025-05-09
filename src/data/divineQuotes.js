@@ -1,5 +1,5 @@
 // src/data/divineQuotes.js
-// This file contains all the divine quotes we'll use instead of fetching from an API
+// Divine quotes for the game
 
 export const divineQuotes = [
   {
@@ -41,26 +41,6 @@ export const divineQuotes = [
     deity: "Athena",
     quote: "Even wisdom acknowledges the necessity of release!",
     theme: "wisdom"
-  },
-  {
-    deity: "Thor",
-    quote: "My intestinal lightning strikes with godly precision!",
-    theme: "thunder"
-  },
-  {
-    deity: "Poseidon",
-    quote: "The seas boil when I unleash my oceanic bubbles!",
-    theme: "water"
-  },
-  {
-    deity: "Anubis",
-    quote: "The afterlife trembles at my ceremonial outbursts!",
-    theme: "obsidian"
-  },
-  {
-    deity: "Freya",
-    quote: "My divine perfume enchants all who are blessed to experience it!",
-    theme: "royal"
   }
 ];
 
