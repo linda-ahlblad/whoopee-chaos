@@ -1,22 +1,20 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App';
+// Change this import to use one of your simplified versions
+import SimpleApp from './SimpleApp';  // Try this one first
+// OR
+// import StandaloneApp from './StandaloneApp';
 import './styles/global.css';
 
-// Initialize the root element
 const rootElement = document.getElementById('root');
 
-// If the root element exists, render the app
 if (rootElement) {
   const root = ReactDOM.createRoot(rootElement);
   root.render(
     <React.StrictMode>
-      <App />
+      <SimpleApp />
     </React.StrictMode>
   );
 } else {
   console.error("Root element not found!");
 }
-
-// Console branding
-console.log('Whoopee Chaos - The divine flatulence game');
