@@ -1,32 +1,22 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import SimpleApp from './SimpleApp';
+import App from './App';
 import './styles/global.css';
 
 // Initialize the root element
 const rootElement = document.getElementById('root');
 
-if (!rootElement) {
-  // If root element not found, create it
-  const newRoot = document.createElement('div');
-  newRoot.id = 'root';
-  document.body.appendChild(newRoot);
-  
-  const root = ReactDOM.createRoot(newRoot);
-  root.render(
-    <React.StrictMode>
-      <SimpleApp />
-    </React.StrictMode>
-  );
-} else {
-  // If root element exists, use it
+// If the root element exists, render the app
+if (rootElement) {
   const root = ReactDOM.createRoot(rootElement);
   root.render(
     <React.StrictMode>
-      <SimpleApp />
+      <App />
     </React.StrictMode>
   );
+} else {
+  console.error("Root element not found!");
 }
 
-// Console message
-console.log('Whoopee Chaos - The divine flatulence game (Simple Version)');
+// Console branding
+console.log('Whoopee Chaos - The divine flatulence game');
