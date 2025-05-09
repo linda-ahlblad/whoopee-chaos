@@ -28,6 +28,9 @@ body {
   position: relative;
   width: 100vw;
   height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 /* UI Elements */
@@ -40,6 +43,7 @@ body {
   padding: 15px;
   color: var(--highlight-color);
   text-align: right;
+  z-index: 10;
 }
 
 .score-display h2 {
@@ -49,6 +53,7 @@ body {
 
 .score-display h3 {
   font-size: 1.2rem;
+  margin-bottom: 10px;
 }
 
 .round-timer {
@@ -77,12 +82,71 @@ body {
   margin-top: 2px;
 }
 
+.high-score-display {
+  margin-top: 10px;
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+/* Cushions Container */
+.cushions-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  max-width: 800px;
+  padding: 20px;
+}
+
+.cushion {
+  width: 180px;
+  height: 90px;
+  background-color: var(--primary-color);
+  border-radius: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  user-select: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.cushion::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
+  border-radius: 15px;
+}
+
+.cushion:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+}
+
+.cushion.activated {
+  transform: scale(0.95);
+  opacity: 0.7;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.cushion span {
+  color: white;
+  font-weight: bold;
+  text-align: center;
+  font-size: 1rem;
+  padding: 10px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
 /* Intro Screen */
 .intro-screen {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   background-color: rgba(0, 0, 0, 0.8);
   border-radius: 20px;
   padding: 40px;
@@ -104,19 +168,26 @@ body {
   margin-bottom: 30px;
 }
 
-.simple-note {
-  font-size: 0.8rem !important;
-  opacity: 0.7;
-  margin-top: 20px !important;
-  margin-bottom: 0 !important;
+.mobile-instructions {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.mobile-instructions p {
+  font-size: 1rem;
+  margin-bottom: 10px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.high-score {
+  margin-top: 20px;
+  font-size: 1.1rem;
+  color: var(--highlight-color);
 }
 
 /* Game Over Screen */
 .game-over {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
   background-color: rgba(0, 0, 0, 0.8);
   border-radius: 20px;
   padding: 40px;
@@ -135,7 +206,21 @@ body {
 
 .game-over p {
   font-size: 1.5rem;
-  margin-bottom: 30px;
+  margin-bottom: 15px;
+}
+
+.new-high-score {
+  color: var(--highlight-color);
+  font-weight: bold;
+  font-size: 1.8rem !important;
+  margin: 20px 0 !important;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
 }
 
 /* Divine Message */
@@ -150,6 +235,7 @@ body {
   max-width: 80%;
   text-align: center;
   animation: fadeInOut 5s forwards;
+  z-index: 10;
 }
 
 .divine-message p {
@@ -179,64 +265,6 @@ button:active {
   transform: scale(0.98);
 }
 
-/* Simple Version Game */
-.simple-game {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  background-color: var(--background-color);
-  overflow: hidden;
-}
-
-.simple-cushions-container {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 20px;
-  max-width: 800px;
-  padding: 20px;
-}
-
-.simple-cushion {
-  width: 200px;
-  height: 100px;
-  background-color: var(--primary-color);
-  border-radius: 15px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  user-select: none;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  position: relative;
-  overflow: hidden;
-}
-
-.simple-cushion:hover {
-  transform: scale(1.05);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
-}
-
-.simple-cushion.activated {
-  transform: scale(0.9);
-  opacity: 0.7;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.simple-cushion span {
-  color: white;
-  font-weight: bold;
-  text-align: center;
-  font-size: 1rem;
-  padding: 10px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-}
-
 /* Animations */
 @keyframes fadeInOut {
   0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
@@ -245,28 +273,12 @@ button:active {
   100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
 }
 
-/* Loading screen */
-.loading {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background-color: var(--background-color);
-  color: var(--primary-color);
-  font-size: 1.5rem;
-  z-index: 9999;
-}
-
 /* Responsive Adjustments */
 @media (max-width: 768px) {
   .intro-screen, .game-over {
     padding: 30px;
     max-width: 90%;
+    margin: 0 15px;
   }
   
   .intro-screen h1, .game-over h1 {
@@ -288,7 +300,7 @@ button:active {
   }
   
   .divine-message {
-    bottom: 80px;
+    bottom: 20px;
     max-width: 90%;
     padding: 15px;
   }
@@ -302,12 +314,53 @@ button:active {
     font-size: 1rem;
   }
   
-  .simple-cushion {
-    width: 150px;
-    height: 80px;
+  .cushion {
+    width: 140px;
+    height: 70px;
   }
   
-  .simple-cushion span {
+  .cushion span {
     font-size: 0.9rem;
+  }
+  
+  .cushions-container {
+    gap: 15px;
+    padding: 10px;
+  }
+}
+
+/* Smaller screens */
+@media (max-width: 480px) {
+  .cushion {
+    width: 120px;
+    height: 60px;
+  }
+  
+  .cushion span {
+    font-size: 0.8rem;
+  }
+  
+  .intro-screen h1, .game-over h1 {
+    font-size: 2rem;
+  }
+  
+  .intro-screen p {
+    font-size: 1rem;
+  }
+  
+  .game-over p {
+    font-size: 1.2rem;
+  }
+}
+
+/* Very small screens */
+@media (max-width: 360px) {
+  .cushion {
+    width: 100px;
+    height: 50px;
+  }
+  
+  .cushions-container {
+    gap: 10px;
   }
 }
