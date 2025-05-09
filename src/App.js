@@ -1,461 +1,320 @@
-// src/App.js
-import React, { useState, useEffect, useRef } from 'react';
-import { Canvas } from '@react-three/fiber';
-import { OrbitControls, useTexture } from '@react-three/drei';
-import GameFSM from './core/GameFSM';
-import FXManager from './core/FXManager';
-import { cushionVariants } from './data/cushionVariants';
-import AgentBrain from './agents/AgentBrain';
-import { getBaseUrl } from './utils/baseUrl';
+import React, { useState, useEffect } from 'react';
 import './styles/global.css';
 
 // Detect if the device is mobile
-const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+  navigator.userAgent
+);
 
-// Main Cushion component
-const Cushion = ({ variant, position, rotation, onClick, activated }) => {
-  // Don't try to load textures initially - use color only for faster loading
-  // This prevents the loading getting stuck on texture issues
+// Cushion variants
+const cushionVariants = [
+  { id: 0, name: "The Thundercloud", color: "#4a6da7", scoreValue: 1 },
+  { id: 1, name: "The Royal Roar", color: "#8e2de2", scoreValue: 2 },
+  { id: 2, name: "The Crimson Calamity", color: "#e94822", scoreValue: 3 },
+  { id: 3, name: "The Emerald Eruption", color: "#1eb980", scoreValue: 2 },
+  { id: 4, name: "The Golden Gale", color: "#ffcb47", scoreValue: 4 },
+  { id: 5, name: "The Obsidian Outburst", color: "#212121", scoreValue: 5 }
+];
+
+// Divine quotes
+const divineQuotes = [
+  { deity: "Zeus", quote: "My thunderous expulsions shake the heavens themselves!" },
+  { deity: "Odin", quote: "By my throne in Asgard, what a magnificent release!" },
+  { deity: "Pele", quote: "My volcanic emissions flow like lava through the divine realm!" },
+  { deity: "Pan", quote: "The forest spirits dance when I release my sylvan zephyrs!" },
+  { deity: "Midas", quote: "Even my gaseous emissions turn to gold in their opulence!" },
+  { deity: "Hades", quote: "From the depths of the underworld comes this miasmic greeting!" },
+  { deity: "Eris", quote: "Chaos is my domain, and chaos I shall release!" },
+  { deity: "Athena", quote: "Even wisdom acknowledges the necessity of release!" }
+];
+
+// Get random quote
+const getRandomQuote = () => {
+  const index = Math.floor(Math.random() * divineQuotes.length);
+  return divineQuotes[index];
+};
+
+// Simple Cushion Component
+const Cushion = ({ variant, activated, onClick }) => {
   return (
-    <mesh 
-      position={position} 
-      rotation={rotation} 
+    <div
+      className={`cushion ${activated ? 'activated' : ''}`}
+      style={{
+        backgroundColor: variant.color,
+        transform: `scale(${activated ? 0.95 : 1})`,
+        opacity: activated ? 0.7 : 1
+      }}
       onClick={onClick}
-      scale={activated ? [1.1, 1.2, 1.1] : [1, 1, 1]} // Scale up when activated
     >
-      <boxGeometry args={[1, 0.2, 1]} />
-      <meshStandardMaterial 
-        color={variant.color} 
-        emissive={activated ? variant.color : "#000000"}
-        emissiveIntensity={activated ? 0.5 : 0}
-      />
-    </mesh>
-  );
-};
-
-// Divine entity that reacts to events - simplified for mobile
-const DivineEntity = ({ position, intensity = 0 }) => {
-  return (
-    <group position={position}>
-      <pointLight position={[0, 2, 0]} intensity={0.5 + intensity * 0.3} color="#ffcc77" />
-      <mesh position={[0, 0, 0]}>
-        <sphereGeometry args={[0.5, 16, 16]} /> {/* Reduced geometry complexity */}
-        <meshStandardMaterial color="#ffcc77" emissive="#993300" emissiveIntensity={0.3} />
-      </mesh>
-    </group>
-  );
-};
-
-// Main game scene - optimized for mobile and resilient to asset loading issues
-const GameScene = ({ gameState, handleCushionClick }) => {
-  // Generate cushions if activeCushions is missing or empty
-  const cushions = gameState.activeCushions || [];
-  
-  // If we have no cushions but we're in PLAYING phase, generate some default ones
-  const displayCushions = cushions.length > 0 ? cushions : 
-    (gameState.phase === 'PLAYING' ? generateDefaultCushions() : []);
-  
-  return (
-    <>
-      <ambientLight intensity={0.4} />
-      <directionalLight position={[10, 10, 5]} intensity={0.5} />
-      
-      {/* Render cushions based on game state */}
-      {displayCushions.map((cushion, index) => {
-        // Get variant safely with fallback
-        const variantId = cushion.variantId || 0;
-        const variant = cushionVariants[variantId] || cushionVariants[0] || {
-          color: '#4a6da7',
-          name: 'Default Cushion'
-        };
-        
-        return (
-          <Cushion 
-            key={index}
-            variant={variant}
-            position={cushion.position || [index * 2 - 2, 0, 0]}
-            rotation={cushion.rotation || [0, 0, 0]}
-            activated={cushion.activated || false}
-            onClick={() => handleCushionClick(index)}
-          />
-        );
-      })}
-      
-      {/* Divine entity that reacts to game events */}
-      <DivineEntity 
-        position={[0, 2, 0]} 
-        intensity={gameState.score / 10} // Intensity increases with score
-      />
-      
-      {/* Mobile-optimized controls */}
-      <OrbitControls 
-        enableZoom={!isMobile} // Disable zoom on mobile to avoid pinch conflicts
-        enablePan={false}      // Disable panning for simpler mobile controls
-        enableRotate={true}    // Keep rotation for perspective
-        maxPolarAngle={Math.PI / 2} // Limit rotation to avoid disorientation
-        minPolarAngle={Math.PI / 6} // Set minimum angle for better visibility
-      />
-    </>
-  );
-};
-
-// Helper function to generate default cushions if needed
-function generateDefaultCushions() {
-  const count = 3;
-  const cushions = [];
-  
-  for (let i = 0; i < count; i++) {
-    // Place in a circle
-    const angle = (i / count) * Math.PI * 2;
-    const radius = 3;
-    const x = Math.cos(angle) * radius;
-    const z = Math.sin(angle) * radius;
-    
-    cushions.push({
-      variantId: i % cushionVariants.length,
-      position: [x, 0, z],
-      rotation: [0, angle, 0],
-      activated: false
-    });
-  }
-  
-  return cushions;
-}
-
-// UI Overlay component - mobile responsive
-const GameUI = ({ gameState, onStartGame, onRestart, onSettingsToggle }) => {
-  return (
-    <div className="game-ui">
-      {gameState.phase === 'PLAYING' && (
-        <div className="score-display">
-          <h2>Divine Chaos: {gameState.score}</h2>
-          <h3>Rounds: {gameState.roundsSurvived}</h3>
-          {gameState.phase === 'PLAYING' && (
-            <div className="round-timer">
-              <progress 
-                value={gameState.roundTime} 
-                max={gameState.maxRoundTime}
-              ></progress>
-              <span>{Math.max(0, gameState.maxRoundTime - gameState.roundTime)}s</span>
-            </div>
-          )}
-        </div>
-      )}
-      
-      {gameState.phase === 'INTRO' && (
-        <div className="intro-screen">
-          <h1>Whoopee Chaos</h1>
-          <p>The divine flatulence game of mythical proportions!</p>
-          <button onClick={onStartGame}>Begin Divine Journey</button>
-          
-          {/* Mobile instructions */}
-          {isMobile && (
-            <div className="mobile-instructions">
-              <p>Tap the divine cushions to unleash chaos!</p>
-              <p>Use one finger to rotate view</p>
-            </div>
-          )}
-        </div>
-      )}
-      
-      {gameState.phase === 'GAME_OVER' && (
-        <div className="game-over">
-          <h1>Divine Judgment</h1>
-          <p>You have caused chaos with {gameState.score} divine eruptions!</p>
-          <button onClick={onRestart}>Ascend Again</button>
-        </div>
-      )}
-      
-      {gameState.currentMessage && (
-        <div className="divine-message">
-          <p>{gameState.currentMessage}</p>
-        </div>
-      )}
-      
-      {/* Simple settings button for mobile */}
-      {gameState.phase === 'PLAYING' && (
-        <button 
-          className="settings-button"
-          onClick={onSettingsToggle}
-        >
-          ⚙️
-        </button>
-      )}
+      <span>{variant.name}</span>
     </div>
   );
 };
 
-// Main App component
 function App() {
-  const [gameState, setGameState] = useState(null);
-  const [showSettings, setShowSettings] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const fxManager = useRef(new FXManager());
-  const gameFSM = useRef(null);
-  const agentBrain = useRef(null);
-  
-  // Force loading to complete after timeout even if assets are still loading
-  useEffect(() => {
-    const loadingTimer = setTimeout(() => {
-      if (isLoading) {
-        console.log("Forcing loading completion after timeout");
-        setIsLoading(false);
-        
-        // Initialize default game state if needed
-        if (!gameState) {
-          const defaultState = {
-            phase: 'INTRO',
-            score: 0,
-            roundsSurvived: 0,
-            roundTime: 0,
-            maxRoundTime: 30,
-            activeCushions: [],
-            currentMessage: null
-          };
-          setGameState(defaultState);
-        }
-      }
-    }, 5000); // 5 second timeout
+  const [gamePhase, setGamePhase] = useState('INTRO');
+  const [score, setScore] = useState(0);
+  const [rounds, setRounds] = useState(0);
+  const [message, setMessage] = useState(null);
+  const [cushions, setCushions] = useState([]);
+  const [roundTime, setRoundTime] = useState(0);
+  const [maxRoundTime, setMaxRoundTime] = useState(30);
+  const [highScore, setHighScore] = useState(() => {
+    // Load high score from localStorage if available
+    const saved = localStorage.getItem('whoopeeChaosHighScore');
+    return saved ? parseInt(saved, 10) : 0;
+  });
+
+  // Timer reference
+  const timerRef = React.useRef(null);
+
+  // Generate cushions for a round
+  const generateCushions = (count) => {
+    const newCushions = [];
+    const usedVariants = new Set();
     
-    return () => clearTimeout(loadingTimer);
-  }, [isLoading, gameState]);
-  
-  // Initialize game systems
-  useEffect(() => {
-    try {
-      // Initialize with mobile-optimized settings
-      const mobileOptions = {
-        particleCount: isMobile ? 'low' : 'high',
-        soundQuality: isMobile ? 'compressed' : 'high',
-        maxCushions: isMobile ? 5 : 7 // Fewer cushions on mobile for performance
-      };
+    for (let i = 0; i < count; i++) {
+      let variantIndex;
+      // Try to get different variants when possible
+      do {
+        variantIndex = Math.floor(Math.random() * cushionVariants.length);
+      } while (usedVariants.has(variantIndex) && usedVariants.size < cushionVariants.length);
       
-      // Initialize core game components in try-catch blocks
-      try {
-        gameFSM.current = new GameFSM(mobileOptions);
-      } catch (error) {
-        console.error("Error initializing GameFSM:", error);
-        // Fallback to basic game state
-        gameFSM.current = {
-          getState: () => ({
-            phase: 'INTRO',
-            score: 0,
-            roundsSurvived: 0,
-            roundTime: 0,
-            maxRoundTime: 30,
-            activeCushions: [],
-            currentMessage: null
-          }),
-          subscribe: (callback) => {},
-          dispatch: (action) => {
-            if (action.type === 'START_GAME') {
-              setGameState(prev => ({...prev, phase: 'PLAYING'}));
-            }
-          },
-          dispose: () => {}
-        };
-      }
+      usedVariants.add(variantIndex);
       
-      try {
-        agentBrain.current = new AgentBrain();
-      } catch (error) {
-        console.error("Error initializing AgentBrain:", error);
-        // Fallback to simple agent
-        agentBrain.current = {
-          getDivineWisdom: () => Promise.resolve("The gods are silent today...")
-        };
-      }
-      
-      // Initial game state
-      setGameState(gameFSM.current.getState());
-      
-      // Subscribe to state changes
-      try {
-        gameFSM.current.subscribe(newState => {
-          setGameState({...newState});
-          
-          // Play sound effects based on state changes
-          if (newState.lastAction === 'CUSHION_ACTIVATED' && fxManager.current) {
-            try {
-              const variantId = newState.activeCushions[newState.lastCushionIndex].variantId;
-              fxManager.current.playFartSound(variantId);
-            } catch (e) {
-              console.warn("Error playing sound:", e);
-            }
-          }
-        });
-      } catch (error) {
-        console.error("Error subscribing to game state:", error);
-      }
-      
-      // Initialize the FX Manager with mobile optimizations
-      try {
-        fxManager.current.preloadSounds();
-      } catch (error) {
-        console.error("Error preloading sounds:", error);
-      }
-      
-      // Setup mobile-specific event listeners
-      if (isMobile) {
-        window.addEventListener('orientationchange', handleOrientationChange);
-      }
-      
-      // Mark loading as complete
-      setIsLoading(false);
-      
-      return () => {
-        // Cleanup
-        if (fxManager.current && fxManager.current.dispose) {
-          try {
-            fxManager.current.dispose();
-          } catch (e) {
-            console.warn("Error disposing FXManager:", e);
-          }
-        }
-        
-        if (gameFSM.current && gameFSM.current.dispose) {
-          try {
-            gameFSM.current.dispose();
-          } catch (e) {
-            console.warn("Error disposing GameFSM:", e);
-          }
-        }
-        
-        if (isMobile) {
-          window.removeEventListener('orientationchange', handleOrientationChange);
-        }
-      };
-    } catch (error) {
-      console.error("Critical initialization error:", error);
-      // Force loading to complete even if there was an error
-      setIsLoading(false);
-      
-      // Set minimal game state
-      setGameState({
-        phase: 'INTRO',
-        score: 0,
-        roundsSurvived: 0,
-        activeCushions: [],
-        currentMessage: null
+      newCushions.push({
+        variant: cushionVariants[variantIndex],
+        id: i,
+        activated: false
       });
     }
-  }, []);
-  
-  // Handle orientation change on mobile
-  const handleOrientationChange = () => {
-    // Force canvas resize after orientation change
-    setTimeout(() => {
-      window.dispatchEvent(new Event('resize'));
-    }, 300);
+    
+    return newCushions;
   };
-  
+
+  // Start game
   const handleStartGame = () => {
-    gameFSM.current.dispatch({ type: 'START_GAME' });
-  };
-  
-  const handleRestart = () => {
-    gameFSM.current.dispatch({ type: 'RESTART' });
-  };
-  
-  const handleCushionClick = (cushionIndex) => {
-    // Vibrate on mobile devices for tactile feedback
-    if (isMobile && 'vibrate' in navigator) {
-      navigator.vibrate(50);
+    // Clear any existing timer
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
     }
     
-    gameFSM.current.dispatch({ 
-      type: 'ACTIVATE_CUSHION', 
-      payload: { cushionIndex } 
-    });
+    setGamePhase('PLAYING');
+    setScore(0);
+    setRounds(0);
+    setCushions(generateCushions(3));
+    setRoundTime(0);
     
-    // Get divine wisdom from the agent
-    agentBrain.current.getDivineWisdom()
-      .then(wisdom => {
-        gameFSM.current.dispatch({
-          type: 'DIVINE_MESSAGE',
-          payload: { message: wisdom }
-        });
-      })
-      .catch(error => {
-        console.warn('Error getting divine wisdom:', error);
-        // Fallback to simple message if agent fails
-        gameFSM.current.dispatch({
-          type: 'DIVINE_MESSAGE',
-          payload: { message: "A deity mumbles something unintelligible..." }
-        });
+    // Start round timer
+    timerRef.current = setInterval(() => {
+      setRoundTime(prevTime => {
+        if (prevTime >= maxRoundTime - 1) {
+          // End round
+          handleRoundEnd();
+          return 0;
+        }
+        return prevTime + 1;
       });
+    }, 1000);
   };
-  
-  const handleSettingsToggle = () => {
-    setShowSettings(!showSettings);
+
+  // Handle end of round
+  const handleRoundEnd = () => {
+    // Clear timer
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    
+    // Check if any cushions were activated
+    const anyActivated = cushions.some(cushion => cushion.activated);
+    
+    if (!anyActivated) {
+      // Game over
+      handleGameOver();
+    } else {
+      // Start new round
+      const newRounds = rounds + 1;
+      setRounds(newRounds);
+      
+      // More cushions in higher rounds (but not too many on mobile)
+      const maxCushions = isMobile ? 6 : 8;
+      const cushionCount = Math.min(3 + Math.floor(newRounds / 2), maxCushions);
+      setCushions(generateCushions(cushionCount));
+      
+      // Reset round time
+      setRoundTime(0);
+      
+      // Show round message
+      setMessage("Round complete! Divine chaos increases...");
+      setTimeout(() => setMessage(null), 3000);
+      
+      // Start new timer
+      timerRef.current = setInterval(() => {
+        setRoundTime(prevTime => {
+          if (prevTime >= maxRoundTime - 1) {
+            handleRoundEnd();
+            return 0;
+          }
+          return prevTime + 1;
+        });
+      }, 1000);
+    }
   };
-  
-  // Simplified loading screen
-  if (isLoading) {
+
+  // Handle game over
+  const handleGameOver = () => {
+    // Clear timer
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    
+    // Update high score if needed
+    if (score > highScore) {
+      setHighScore(score);
+      localStorage.setItem('whoopeeChaosHighScore', score.toString());
+    }
+    
+    setGamePhase('GAME_OVER');
+  };
+
+  // Handle cushion click
+  const handleCushionClick = (id) => {
+    if (gamePhase !== 'PLAYING') return;
+    
+    setCushions(prev => {
+      return prev.map(cushion => {
+        if (cushion.id === id && !cushion.activated) {
+          // Try to play sound (with vibration on mobile)
+          try {
+            // Create and play a simple audio blip
+            const context = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = context.createOscillator();
+            const gain = context.createGain();
+            
+            oscillator.type = 'sine';
+            oscillator.frequency.value = 100 + Math.random() * 300;
+            gain.gain.value = 0.1;
+            
+            oscillator.connect(gain);
+            gain.connect(context.destination);
+            
+            oscillator.start();
+            oscillator.stop(context.currentTime + 0.2);
+            
+            // Vibrate on mobile
+            if (isMobile && 'vibrate' in navigator) {
+              navigator.vibrate(50);
+            }
+          } catch (error) {
+            console.log('Audio error:', error);
+          }
+          
+          // Update score
+          setScore(prev => prev + cushion.variant.scoreValue);
+          
+          // Show divine message
+          const quote = getRandomQuote();
+          setMessage(`${quote.deity}: "${quote.quote}"`);
+          setTimeout(() => setMessage(null), 5000);
+          
+          // Return activated cushion
+          return { ...cushion, activated: true };
+        }
+        return cushion;
+      });
+    });
+  };
+
+  // Clean up on unmount
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, []);
+
+  // Intro screen
+  if (gamePhase === 'INTRO') {
     return (
-      <div className="loading">
-        <h1>Whoopee Chaos</h1>
-        <div className="loading-spinner"></div>
-        <p>Loading divine experience...</p>
+      <div className="game-container">
+        <div className="intro-screen">
+          <h1>Whoopee Chaos</h1>
+          <p>The divine flatulence game of mythical proportions!</p>
+          <button onClick={handleStartGame}>Begin Divine Journey</button>
+          
+          {highScore > 0 && (
+            <p className="high-score">Highest Divine Score: {highScore}</p>
+          )}
+          
+          {isMobile && (
+            <div className="mobile-instructions">
+              <p>Tap the divine cushions to unleash chaos!</p>
+            </div>
+          )}
+        </div>
       </div>
     );
   }
-  
-  // Fallback if game state initialization failed
-  if (!gameState) {
+
+  // Game over screen
+  if (gamePhase === 'GAME_OVER') {
     return (
-      <div className="error-screen">
-        <h1>Whoopee Chaos</h1>
-        <p>Unable to initialize game. Please refresh the page.</p>
-        <button onClick={() => window.location.reload()}>Reload</button>
+      <div className="game-container">
+        <div className="game-over">
+          <h1>Divine Judgment</h1>
+          <p>You have caused chaos with {score} divine eruptions!</p>
+          <p>You survived {rounds} rounds!</p>
+          
+          {score >= highScore && (
+            <p className="new-high-score">New High Score!</p>
+          )}
+          
+          <button onClick={handleStartGame}>Ascend Again</button>
+        </div>
       </div>
     );
   }
-  
+
+  // Main game screen
   return (
     <div className="game-container">
-      <Canvas 
-        className="game-canvas"
-        camera={{ position: [0, 3, 6], fov: 60 }} // Better default camera for mobile
-        dpr={[1, isMobile ? 1.5 : 2]} // Lower resolution scaling on mobile
-        onCreated={({ gl }) => {
-          // Fallback on error
-          gl.onError = () => {
-            console.log("WebGL error occurred, but we'll continue");
-            // We don't crash the app on WebGL errors
-          };
-        }}
-      >
-        <GameScene 
-          gameState={gameState} 
-          handleCushionClick={handleCushionClick} 
-        />
-      </Canvas>
-      <GameUI 
-        gameState={gameState}
-        onStartGame={handleStartGame}
-        onRestart={handleRestart}
-        onSettingsToggle={handleSettingsToggle}
-      />
-      
-      {/* Simple Settings Panel */}
-      {showSettings && (
-        <div className="settings-panel">
-          <h3>Divine Settings</h3>
-          <button 
-            onClick={() => {
-              const enabled = fxManager.current.toggleSound();
-              // Show feedback
-              gameFSM.current.dispatch({
-                type: 'DIVINE_MESSAGE',
-                payload: { message: `Sound ${enabled ? 'enabled' : 'disabled'}` }
-              });
-              setShowSettings(false);
-            }}
-          >
-            Toggle Sound
-          </button>
-          <button onClick={() => setShowSettings(false)}>Close</button>
+      <div className="score-display">
+        <h2>Divine Chaos: {score}</h2>
+        <h3>Round: {rounds}</h3>
+        <div className="round-timer">
+          <div className="timer-bar">
+            <div
+              className="timer-fill"
+              style={{ width: `${(roundTime / maxRoundTime) * 100}%` }}
+            ></div>
+          </div>
+          <span>{maxRoundTime - roundTime}s</span>
+        </div>
+        
+        {highScore > 0 && (
+          <div className="high-score-display">
+            Best: {highScore}
+          </div>
+        )}
+      </div>
+
+      <div className="cushions-container">
+        {cushions.map(cushion => (
+          <Cushion
+            key={cushion.id}
+            variant={cushion.variant}
+            activated={cushion.activated}
+            onClick={() => handleCushionClick(cushion.id)}
+          />
+        ))}
+      </div>
+
+      {message && (
+        <div className="divine-message">
+          <p>{message}</p>
         </div>
       )}
     </div>
