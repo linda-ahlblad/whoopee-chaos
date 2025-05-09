@@ -1,5 +1,5 @@
 // src/data/cushionVariants.js
-// This file contains the different types of cushions
+// This file defines the different types of cushions in the game
 
 export const cushionVariants = [
   {
