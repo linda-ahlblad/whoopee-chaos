@@ -44,3 +44,5 @@ npm install
 
 # Start the development server
 npm start
+
+The game will be available at http://localhost:3000.
