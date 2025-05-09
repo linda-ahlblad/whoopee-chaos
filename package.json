@@ -2,14 +2,18 @@
   "name": "whoopee-chaos",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://linda-ahlblad.github.io/whoopee-chaos",
+  "homepage": "https://linda-ahlblad.github.io/whoopee-chaos/",
   "dependencies": {
-    "@react-three/drei": "^9.0.0",
-    "@react-three/fiber": "^8.0.0",
+    "@react-three/drei": "^9.80.0",
+    "@react-three/fiber": "^8.13.6",
+    "@testing-library/jest-dom": "^5.17.0",
+    "@testing-library/react": "^13.4.0",
+    "@testing-library/user-event": "^13.5.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
-    "three": "^0.150.0"
+    "three": "^0.154.0",
+    "web-vitals": "^2.1.4"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -38,6 +42,6 @@
     ]
   },
   "devDependencies": {
-    "gh-pages": "^6.0.0"
+    "gh-pages": "^5.0.0"
   }
 }
