@@ -1,4 +1,4 @@
-/* src/styles/global.css */
+/* Minimal CSS for SimpleApp.js */
 
 :root {
   --primary-color: #8e2de2;
@@ -33,7 +33,16 @@ body {
   align-items: center;
 }
 
-/* UI Elements */
+.simple-game {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Score Display */
 .score-display {
   position: absolute;
   top: 20px;
@@ -53,7 +62,6 @@ body {
 
 .score-display h3 {
   font-size: 1.2rem;
-  margin-bottom: 10px;
 }
 
 .round-timer {
@@ -82,69 +90,6 @@ body {
   margin-top: 2px;
 }
 
-.high-score-display {
-  margin-top: 10px;
-  font-size: 0.9rem;
-  opacity: 0.8;
-}
-
-/* Cushions Container */
-.cushions-container {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 20px;
-  max-width: 800px;
-  padding: 20px;
-}
-
-.cushion {
-  width: 180px;
-  height: 90px;
-  background-color: var(--primary-color);
-  border-radius: 15px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  user-select: none;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-  position: relative;
-  overflow: hidden;
-}
-
-.cushion::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(45deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
-  border-radius: 15px;
-}
-
-.cushion:hover {
-  transform: scale(1.05);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
-}
-
-.cushion.activated {
-  transform: scale(0.95);
-  opacity: 0.7;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.cushion span {
-  color: white;
-  font-weight: bold;
-  text-align: center;
-  font-size: 1rem;
-  padding: 10px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
-}
-
 /* Intro Screen */
 .intro-screen {
   background-color: rgba(0, 0, 0, 0.8);
@@ -168,22 +113,11 @@ body {
   margin-bottom: 30px;
 }
 
-.mobile-instructions {
-  margin-top: 20px;
-  padding-top: 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.mobile-instructions p {
-  font-size: 1rem;
-  margin-bottom: 10px;
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.high-score {
-  margin-top: 20px;
-  font-size: 1.1rem;
-  color: var(--highlight-color);
+.simple-note {
+  font-size: 0.8rem !important;
+  opacity: 0.7;
+  margin-top: 20px !important;
+  margin-bottom: 0 !important;
 }
 
 /* Game Over Screen */
@@ -206,21 +140,50 @@ body {
 
 .game-over p {
   font-size: 1.5rem;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 }
 
-.new-high-score {
-  color: var(--highlight-color);
+/* Cushions */
+.simple-cushions-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  max-width: 800px;
+  padding: 20px;
+}
+
+.simple-cushion {
+  width: 200px;
+  height: 100px;
+  background-color: var(--primary-color);
+  border-radius: 15px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  user-select: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.simple-cushion:hover {
+  transform: scale(1.05) !important;
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+}
+
+.simple-cushion.activated {
+  opacity: 0.7;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.simple-cushion span {
+  color: white;
   font-weight: bold;
-  font-size: 1.8rem !important;
-  margin: 20px 0 !important;
-  animation: pulse 1.5s infinite;
-}
-
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-  100% { transform: scale(1); }
+  text-align: center;
+  font-size: 1rem;
+  padding: 10px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
 
 /* Divine Message */
@@ -235,7 +198,6 @@ body {
   max-width: 80%;
   text-align: center;
   animation: fadeInOut 5s forwards;
-  z-index: 10;
 }
 
 .divine-message p {
@@ -273,12 +235,11 @@ button:active {
   100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
 }
 
-/* Responsive Adjustments */
+/* Mobile Responsiveness */
 @media (max-width: 768px) {
   .intro-screen, .game-over {
     padding: 30px;
     max-width: 90%;
-    margin: 0 15px;
   }
   
   .intro-screen h1, .game-over h1 {
@@ -299,6 +260,15 @@ button:active {
     font-size: 1rem;
   }
   
+  .simple-cushion {
+    width: 150px;
+    height: 80px;
+  }
+  
+  .simple-cushion span {
+    font-size: 0.9rem;
+  }
+  
   .divine-message {
     bottom: 20px;
     max-width: 90%;
@@ -313,54 +283,15 @@ button:active {
     padding: 12px 24px;
     font-size: 1rem;
   }
-  
-  .cushion {
-    width: 140px;
-    height: 70px;
-  }
-  
-  .cushion span {
-    font-size: 0.9rem;
-  }
-  
-  .cushions-container {
-    gap: 15px;
-    padding: 10px;
-  }
 }
 
-/* Smaller screens */
 @media (max-width: 480px) {
-  .cushion {
+  .simple-cushion {
     width: 120px;
     height: 60px;
   }
   
-  .cushion span {
+  .simple-cushion span {
     font-size: 0.8rem;
-  }
-  
-  .intro-screen h1, .game-over h1 {
-    font-size: 2rem;
-  }
-  
-  .intro-screen p {
-    font-size: 1rem;
-  }
-  
-  .game-over p {
-    font-size: 1.2rem;
-  }
-}
-
-/* Very small screens */
-@media (max-width: 360px) {
-  .cushion {
-    width: 100px;
-    height: 50px;
-  }
-  
-  .cushions-container {
-    gap: 10px;
   }
 }
