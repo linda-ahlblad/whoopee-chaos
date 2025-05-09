@@ -1,6 +1,3 @@
-// src/utils/baseUrl.js
-// Utility for correctly handling asset paths in GitHub Pages
-
 /**
  * Gets the base URL for assets based on the environment
  * This ensures assets load correctly on GitHub Pages
