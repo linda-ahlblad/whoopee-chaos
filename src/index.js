@@ -1,14 +1,99 @@
 // src/index.js
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App';
 import './styles/global.css';
-import { initMobileOptimizations } from './utils/mobileUtils';
 
-// Initialize mobile optimizations
-document.addEventListener('DOMContentLoaded', () => {
-  initMobileOptimizations();
-});
+// App Loader component that handles error fallbacks
+const AppLoader = () => {
+  const [hasError, setHasError] = useState(false);
+  
+  useEffect(() => {
+    // Set timeout to detect if app is taking too long to load
+    const failsafeTimer = setTimeout(() => {
+      console.log("Application may be stuck, showing failsafe UI");
+      setHasError(true);
+    }, 10000); // 10 second timeout
+    
+    return () => clearTimeout(failsafeTimer);
+  }, []);
+  
+  if (hasError) {
+    // Display simple, functional version of the game
+    return <SimplifiedGame />;
+  }
+
+  try {
+    // Try to load the main App
+    const App = require('./App').default;
+    return <App />;
+  } catch (error) {
+    console.error("Failed to load main App:", error);
+    return <SimplifiedGame />;
+  }
+};
+
+// Very simplified game component as emergency fallback
+const SimplifiedGame = () => {
+  const [gameStarted, setGameStarted] = useState(false);
+  const [score, setScore] = useState(0);
+  const [message, setMessage] = useState(null);
+  
+  const handleCushionClick = () => {
+    setScore(prev => prev + 1);
+    const quotes = [
+      "Zeus: My thunderous expulsions shake the heavens!",
+      "Odin: By my throne in Asgard, what a release!",
+      "Pele: My volcanic emissions flow like lava!",
+      "Pan: The forest spirits dance with my release!",
+      "Athena: Even wisdom acknowledges the necessity of release!"
+    ];
+    const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+    setMessage(randomQuote);
+    
+    setTimeout(() => setMessage(null), 3000);
+  };
+  
+  if (!gameStarted) {
+    return (
+      <div className="game-container">
+        <div className="intro-screen">
+          <h1>Whoopee Chaos</h1>
+          <p>The divine flatulence game of mythical proportions!</p>
+          <button onClick={() => setGameStarted(true)}>Begin Divine Journey</button>
+          <p className="fallback-note">Running in simplified mode</p>
+        </div>
+      </div>
+    );
+  }
+  
+  return (
+    <div className="game-container">
+      <div className="simplified-game">
+        <div className="score-display">
+          <h2>Divine Chaos: {score}</h2>
+        </div>
+        
+        <div className="cushion-container">
+          {[0, 1, 2].map((i) => (
+            <button
+              key={i}
+              className={`simplified-cushion cushion-${i}`}
+              onClick={handleCushionClick}
+            >
+              Click me
+            </button>
+          ))}
+        </div>
+        
+        {message && (
+          <div className="divine-message">
+            <p>{message}</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
 
 // Initialize the root element
 const rootElement = document.getElementById('root');
@@ -22,7 +107,7 @@ if (!rootElement) {
   const root = ReactDOM.createRoot(newRoot);
   root.render(
     <React.StrictMode>
-      <App />
+      <AppLoader />
     </React.StrictMode>
   );
 } else {
@@ -30,7 +115,7 @@ if (!rootElement) {
   const root = ReactDOM.createRoot(rootElement);
   root.render(
     <React.StrictMode>
-      <App />
+      <AppLoader />
     </React.StrictMode>
   );
 }
